@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ other_user.username }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Chat with {{ other_user.username }}</h2>
+
+        <!-- Display old messages -->
+        <div class="border p-3 mb-3" style="height: 300px; overflow-y: scroll;">
+            {% for message in messages %}
+                <div class="{% if message.sender == request.user %}text-end{% else %}text-start{% endif %}">
+                    <p><strong>{{ message.sender.username }}</strong>: {{ message.content }}</p>
+                    <small class="text-muted">{{ message.timestamp }}</small>
+                </div>
+            {% empty %}
+                <p class="text-center text-muted">No messages yet. Start the conversation!</p>
+            {% endfor %}
+        </div>
+
+        <!-- Message input form -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="content" class="form-control" rows="3" placeholder="Type your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+
+        <a href="{% url 'chat_room' %}" class="btn btn-secondary mt-3">Back to Chat Room</a>
+    </div>
+</body>
+</html>
