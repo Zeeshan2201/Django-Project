@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'channels',
     'chat',
 ]
@@ -139,3 +140,6 @@ CHANNEL_LAYERS = {
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap5' depending on your version
+
