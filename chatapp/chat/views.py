@@ -1,24 +1,24 @@
-# Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from .models import Message
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 
-#@login_required
+@login_required
 def user_chat(request, username):
     # Get the selected user for chat
-    # try:
-    #     other_user = User.objects.get(username=username)
-    # except User.DoesNotExist:
-    #     return redirect('chat_room')  # Redirect if the user doesn't exist
+    try:
+        other_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return redirect('chat_room')  # Redirect if the user doesn't exist
 
-    # # Fetch messages between the logged-in user and the selected user
-    # messages = Message.objects.filter(
-    #     sender__in=[request.user, other_user],
-    #     receiver__in=[request.user, other_user]
-    # ).order_by('timestamp')  # Order by timestamp for chronological display
+    # Fetch messages between the logged-in user and the selected user
+    messages = Message.objects.filter(
+        sender__in=[request.user, other_user],
+        receiver__in=[request.user, other_user]
+    ).order_by('timestamp')  # Order by timestamp for chronological display
 
     # Handle message sending
     if request.method == "POST":
@@ -29,14 +29,14 @@ def user_chat(request, username):
 
     return render(request, 'chat/user_chat.html', {'other_user': other_user, 'messages': messages})
 
+
+@login_required
 def chat_room(request):
-    # if not request.user.is_authenticated:
-    #     return redirect('login')
-    
-    # # Fetch all messages and registered users
-    messages = Message.objects.all()
+    # Fetch all messages and registered users
+    messages = Message.objects.all().order_by('timestamp')  # Ensure proper order
     users = User.objects.exclude(id=request.user.id)  # Exclude the logged-in user
 
+    # Handle message sending
     if request.method == "POST":
         content = request.POST.get('content')
         receiver_username = request.POST.get('receiver')  # Get receiver from the form
@@ -70,8 +70,9 @@ def signup_view(request):
             return redirect('login')
         except Exception as e:
             messages.error(request, f"Error during signup: {e}")
-            return redirect('signup')
+            return redirect('chat_room')
     return render(request, 'chat/signup.html')
+
 
 def login_view(request):
     if request.method == "POST":
@@ -95,4 +96,3 @@ def login_view(request):
         form = AuthenticationForm()  # Instantiate an empty login form
 
     return render(request, 'chat/login.html', {'form': form})
-

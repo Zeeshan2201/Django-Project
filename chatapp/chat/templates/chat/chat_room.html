@@ -71,18 +71,22 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
     <!-- WebSocket Script -->
     <script>
-        const roomName = "{{ room_name }}";
-        const wsUrl = `ws://${window.location.host}/ws/chat/${roomName}/`;
-
+        // Initialize WebSocket connection
+        const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const wsUrl = `${protocol}${window.location.host}/ws/chat/{{ room_name }}/`;
         const chatSocket = new WebSocket(wsUrl);
 
-        chatSocket.onmessage = function(e) {
+        // Handle incoming messages
+        chatSocket.onmessage = function (e) {
+            console.log('Message received:', e.data); // Debugging line
             const data = JSON.parse(e.data);
+
             const chatLog = document.getElementById('chat-log');
 
-            // Append message based on sender
+            // Append message
             const messageElement = document.createElement('p');
             if (data.sender === "{{ request.user.username }}") {
                 messageElement.className = 'user-message';
@@ -92,18 +96,22 @@
             messageElement.textContent = `${data.sender}: ${data.message}`;
             chatLog.appendChild(messageElement);
 
-            // Auto-scroll to the bottom
+            // Auto-scroll
             chatLog.scrollTop = chatLog.scrollHeight;
         };
 
-        chatSocket.onclose = function(e) {
+        // Handle WebSocket closure
+        chatSocket.onclose = function (e) {
             console.error('Chat socket closed unexpectedly');
         };
 
-        document.getElementById('chat-message-submit').onclick = function(e) {
+        // Handle message submission
+        document.getElementById('chat-message-submit').onclick = function (e) {
             const messageInputDom = document.getElementById('chat-message-input');
-            const message = messageInputDom.value;
-            if (message.trim() !== '') {
+            const message = messageInputDom.value.trim();
+
+            if (message !== '') {
+                console.log('Sending message:', message); // Debugging line
                 chatSocket.send(JSON.stringify({ 'message': message }));
                 messageInputDom.value = '';
             }
