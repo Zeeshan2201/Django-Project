@@ -9,4 +9,4 @@ class Message(models.Model):
     room_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.sender.username}: {self.content[:50]}"
+        return f'{self.sender} -> {self.receiver}: {self.content}'

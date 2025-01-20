@@ -129,7 +129,7 @@ ASGI_APPLICATION = 'chatapp.asgi.application'
 # Channel Layers (In-Memory Backend for development)
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],
         },

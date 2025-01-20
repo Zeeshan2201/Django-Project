@@ -74,19 +74,19 @@
 
     <!-- WebSocket Script -->
     <script>
+        // Get the room_name dynamically from Django context
+        const roomName = "{{ room_name }}";  // Passed by Django context
+
         // Initialize WebSocket connection
         const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-        const wsUrl = `${protocol}${window.location.host}/ws/chat/{{ room_name }}/`;
+        const wsUrl = `${protocol}${window.location.host}/ws/chat/${roomName}/`;
         const chatSocket = new WebSocket(wsUrl);
 
         // Handle incoming messages
         chatSocket.onmessage = function (e) {
-            console.log('Message received:', e.data); // Debugging line
             const data = JSON.parse(e.data);
 
             const chatLog = document.getElementById('chat-log');
-
-            // Append message
             const messageElement = document.createElement('p');
             if (data.sender === "{{ request.user.username }}") {
                 messageElement.className = 'user-message';
@@ -109,11 +109,14 @@
         document.getElementById('chat-message-submit').onclick = function (e) {
             const messageInputDom = document.getElementById('chat-message-input');
             const message = messageInputDom.value.trim();
-
+            
             if (message !== '') {
-                console.log('Sending message:', message); // Debugging line
-                chatSocket.send(JSON.stringify({ 'message': message }));
-                messageInputDom.value = '';
+                if (chatSocket.readyState === WebSocket.OPEN) {
+                    chatSocket.send(JSON.stringify({ 'message': message }));
+                    messageInputDom.value = '';  // Clear input field
+                } else {
+                    console.error("WebSocket is not open. Ready state: " + chatSocket.readyState);
+                }
             }
         };
     </script>
